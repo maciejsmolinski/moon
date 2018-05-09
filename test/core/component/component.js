@@ -175,5 +175,50 @@ describe("Component", function() {
         });
       });
     });
+
+    it("should listen to events from deeply nested child components", function () {
+      var container = createTestElement("deeplyNestedChildren", "<div>{{value}}</div><container><update-button m-on:change=\"updateValue\"></update-button></container>");
+      var value;
+      var button;
+
+      Moon.component('container', {
+        template: "<div><slot></slot></div>"
+      });
+
+      Moon.component("update-button", {
+        template: "<span m-on:click=\"change\">Update Value</span>",
+        methods: {
+          change: function() {
+            this.emit("change", { value: "Updated Value" });
+          }
+        }
+      });
+
+      new Moon({
+        el: "#deeplyNestedChildren",
+        data: {
+          value: "Initial Value"
+        },
+        methods: {
+          updateValue: function(data) {
+              this.set("value", data.value);
+          }
+        }
+      });
+
+      return wait(function(done) {
+        value = container.firstChild;
+        button = container.lastChild.firstChild;
+
+        button.click();
+
+        Moon.nextTick(function() {
+          expect(value.innerHTML).to.equal("Updated Value");
+          done();
+        });
+      });
+    });
+
+
   });
 });

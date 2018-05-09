@@ -345,7 +345,7 @@
         handle.handlers = eventListeners[type];
     
         // Add handler to vnode
-        eventListeners[type] = handle;
+        eventListeners[type] = handle.handlers;
     
         // Add event listener
         node.addEventListener(type, handle);
